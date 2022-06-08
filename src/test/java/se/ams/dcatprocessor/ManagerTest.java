@@ -19,8 +19,10 @@ package se.ams.dcatprocessor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.MultiValuedMap;
@@ -357,6 +359,23 @@ public class ManagerTest {
         } catch (DcatException e) {
 
         }
+    }
+
+    @Test
+    void testEmptyString() throws Exception {
+        String jsonSource = "{\"about\":\"Mjao\",\"info\":{\"description\":\"Annotation exempel api är ett påhittat api som använder sig av annotations för att skapa metadata för DCAT-AP-SE.\",\"title\":\"Annotation exempel api\",\"version\":\"1.0.0\",\"x-dcat\":{\"dcat-catalog\":{\"about\":\"http://www.af.se\",\"description-sv\":\"Arbetsförmedlingen med flera api'er\",\"homepage\":\"www.arbetsformedlingen.se\",\"issued\":\"2021-04-01\",\"license\":\"http://www.apache.org/licenses/LICENSE-2.0\",\"modified\":\"2021-04-02\",\"publisher\":{\"about\":\"http://www.example.se/result.rdf#publisher\",\"homepage\":\"www.publishertest.se\",\"mbox\":\"publisher1@publisher.com\",\"name\":\"Arbetsförmedlingens Catalog\",\"type\":\"Company\"},\"rights\":{\"attributionText-sv\":\"Detta är ett exempel på rättighetstext för Catalog\",\"attributionURL\":\"www.rattighetstextcatalog.se\",\"copyrightHolder\":{\"about\":\"www.exempel.se/#copyrightHolderCatalog\",\"homepage\":\"www.holder.com\",\"name\":\"Copyright Holder för Catalog\",\"type\":\"RegionalAuthority\"},\"copyrightNotice\":\"Upphovsrätt\",\"copyrightStatement\":{\"about\":\"https://www.example.se/#catalog/statement\",\"description-sv\":\"license för Catalog\",\"title-sv\":\"License För Catalog\"},\"copyrightYear\":\"1979\",\"jurisdiction\":\"www.nywebaddresscat.com\",\"reuserGuidelines\":\"www.guidelinescat.se\"},\"title-en\":\"Example of a catalog for an organistaion with several api's\",\"title-sv\":\"Exempel på catalog för en organisation med flera api'n\"},\"dcat-dataset\":{\"about\":\"https://data.jobtechdev.se/taxonomy/chefsyrken.jsonabout0\",\"accessRights\":\"Public\",\"accrualPeriodicity\":\"http://publications.europa.eu/resource/authority/frequency/UNKNOWN\",\"contactPoint\":{\"about\":\"https://www.example.se/#contactYrkesbenämningar\",\"address\":\"Elektrogatan 4; 171 54; Solna; Sverige\",\"email\":\"jobtechdev@arbetsformedlingen.se\",\"name\":\"Arbetsförmedlingen\",\"type\":\"Organization\"},\"description-en\":\"No description\",\"description-sv\":\"Beskrivning saknas\",\"distribution\":{\"about\":\"https://data.jobtechdev.se/taxonomy/chefsyrken.json#about1\",\"accessURL\":\"https://data.jobtechdev.se/taxonomy/chefsyrken.json\",\"availability\":\"Stable\",\"description-en\":\"No description\",\"description-sv\":\"Beskrivning saknas\",\"downloadURL\":\"https://data.jobtechdev.se/taxonomy/chefsyrken.json\",\"formatMedia\":\"application/json\",\"licenseurl\":\"http://creativecommons.org/publicdomain/zero/1.0/\",\"status\":\"Completed\",\"title\":\"\",\"title-en\":\"\",\"title-sv\":\"Chefsyrken\"},\"keyword-en\":\"Ocupation,\",\"keyword-sv\":\"Taxonomi, Jobtech, Arbetsförmedlingen\",\"landingPage\":\"atlas.jobtechdev.se\",\"licenseurl\":\"http://creativecommons.org/publicdomain/zero/1.0/\",\"spatialUrl\":\"https://www.geonames.org/6695072/european-union.html\",\"theme\":\"GOVE\",\"title\":\"\",\"title-en\":\"\",\"title-sv\":\"Chefsyrken\"}}},\"openapi\":\"3.0.3\",\"paths\":{\"/users\":{\"get\":{\"description\":\"Fake API description. Only in this file to show where the rest of the api definition would be located.\",\"responses\":{\"200\":{\"description\":\"Fake 200 response\"}}}}}}";
+
+        Manager mgr = new Manager();
+        File jsonSourceFile = File.createTempFile("dcat_with_missing_value_test", ".json");
+        Path path = jsonSourceFile.toPath();
+
+        ArrayListValuedHashMap<String, String> apiSpecMap = new ArrayListValuedHashMap<String, String>();
+        apiSpecMap.put(path.toString(), jsonSource);
+
+        String result = manager.createDcat(apiSpecMap);
+
+        assertTrue(result.startsWith("<rdf:RDF"));
+        assertFalse(result.contains("en¤"));
     }
 
     // region Utility methods
